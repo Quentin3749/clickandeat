@@ -13,10 +13,19 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+/**
+ * Contrôleur pour la création et la réinitialisation d'un nouveau mot de passe.
+ */
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Affiche la vue de réinitialisation du mot de passe.
+     *
+     * Cette méthode est appelée lorsque l'utilisateur demande à réinitialiser son mot de passe.
+     * Elle affiche la vue de réinitialisation du mot de passe et passe la requête en paramètre.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
      */
     public function create(Request $request): View
     {
@@ -24,36 +33,48 @@ class NewPasswordController extends Controller
     }
 
     /**
-     * Handle an incoming new password request.
+     * Traite la demande de nouveau mot de passe.
      *
+     * Cette méthode est appelée lorsque l'utilisateur soumet le formulaire de réinitialisation du mot de passe.
+     * Elle valide les champs du formulaire, réinitialise le mot de passe de l'utilisateur et redirige vers la page de connexion.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
+        // Valide les champs du formulaire
+        // Les champs 'token', 'email' et 'password' sont requis
+        // Le champ 'email' doit être un email valide
+        // Le champ 'password' doit être confirmé et doit respecter les règles de mot de passe par défaut
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
+        // Logique de réinitialisation du mot de passe
+        // On utilise la facade Password pour réinitialiser le mot de passe de l'utilisateur
+        // On passe les champs 'email', 'password', 'password_confirmation' et 'token' en paramètre
+        // On utilise une fonction anonyme pour mettre à jour le mot de passe de l'utilisateur et déclencher l'événement PasswordReset
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
+                // On met à jour le mot de passe de l'utilisateur
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
                 ])->save();
 
+                // On déclenche l'événement PasswordReset
                 event(new PasswordReset($user));
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
+        // Redirige vers la page de connexion avec un message de succès ou d'erreur
+        // Si la réinitialisation du mot de passe a réussi, on redirige vers la page de connexion avec un message de succès
+        // Sinon, on redirige vers la page précédente avec un message d'erreur
         return $status == Password::PASSWORD_RESET
                     ? redirect()->route('login')->with('status', __($status))
                     : back()->withInput($request->only('email'))

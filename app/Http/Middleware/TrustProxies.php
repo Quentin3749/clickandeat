@@ -5,17 +5,18 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Middleware\TrustProxies as Middleware;
 use Illuminate\Http\Request;
 
+// Middleware qui gère la confiance envers les proxies (ex : load balancer)
 class TrustProxies extends Middleware
 {
     /**
-     * The trusted proxies for this application.
+     * Les proxies de confiance
      *
      * @var array<int, string>|string|null
      */
     protected $proxies;
 
     /**
-     * The headers that should be used to detect proxies.
+     * Les en-têtes à utiliser pour détecter les proxies
      *
      * @var int
      */

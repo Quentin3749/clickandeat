@@ -6,32 +6,39 @@ use App\Models\Item;
 use App\Models\Category; // Assurez-vous d'importer le modèle Category
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur de gestion des plats (items)
+ *
+ * Permet de lister, créer, afficher, modifier et supprimer des plats.
+ */
 class ItemController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Affiche la liste des plats.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $items = Item::with('category')->paginate(10); // Récupère tous les items avec pagination et la relation category
+        // Récupère tous les plats avec pagination et la relation category
+        $items = Item::with('category')->paginate(10);
         return view('items.index', compact('items'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Affiche le formulaire de création d'un plat.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        $categories = Category::all(); // Récupère toutes les catégories pour le formulaire de création
+        // Récupère toutes les catégories pour le formulaire de création
+        $categories = Category::all();
         return view('items.create', compact('categories'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Enregistre un nouveau plat.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -48,37 +55,38 @@ class ItemController extends Controller
         ]);
 
         // Création d'un nouvel item
-        Item::create($request->all());
+        $data = $request->all();
+        // Associer le plat au restaurant du restaurateur connecté
+        $user = auth()->user();
+        if ($user->hasRole('restaurateur')) {
+            // Si l'utilisateur a plusieurs restaurants, il faut choisir ou passer via le formulaire
+            // Ici, on prend le premier restaurant trouvé
+            $restaurant = $user->restaurants()->first();
+            if ($restaurant) {
+                $data['restaurant_id'] = $restaurant->id;
+            }
+        }
+        Item::create($data);
 
         // Redirection avec un message de succès
         return redirect()->route('items.index')->with('success', 'Item créé avec succès.');
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Item  $item
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Item $item)
-    {
-        return view('items.show', compact('item'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Affiche le formulaire d'édition d'un plat.
      *
      * @param  \App\Models\Item  $item
      * @return \Illuminate\Http\Response
      */
     public function edit(Item $item)
     {
-        $categories = Category::all(); // Récupère toutes les catégories pour le formulaire d'édition
+        // Récupère toutes les catégories pour le formulaire d'édition
+        $categories = Category::all();
         return view('items.edit', compact('item', 'categories'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Met à jour un plat existant.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Item  $item
@@ -103,7 +111,7 @@ class ItemController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Supprime un plat.
      *
      * @param  \App\Models\Item  $item
      * @return \Illuminate\Http\Response

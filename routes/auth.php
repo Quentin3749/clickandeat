@@ -13,16 +13,24 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
+// ---------------------------------------------
+// Fichier de routes d'authentification Laravel
+// Définit toutes les routes liées à l'inscription, connexion, vérification email, etc.
+// ---------------------------------------------
+
+// Routes pour les utilisateurs non connectés
 Route::middleware('guest')->group(function () {
+    // Inscription
     Route::get('register', [RegisteredUserController::class, 'create'])
                 ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
+    // Connexion
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
                 ->name('login');
 
-    // Route de connexion modifiée pour rediriger en fonction du rôle
+    // Route de connexion modifiée pour rediriger en fonction du role
     Route::post('login', function (Request $request) {
         $request->validate([
             'email' => 'required|string|email',
@@ -55,6 +63,7 @@ Route::middleware('guest')->group(function () {
         ])->onlyInput('email');
     })->name('post.login'); // <-- ROUTE POST RENOMMÉE
 
+    // Réinitialisation du mot de passe
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');
 
@@ -68,7 +77,9 @@ Route::middleware('guest')->group(function () {
                 ->name('password.store');
 });
 
+// Routes pour les utilisateurs connectés
 Route::middleware('auth')->group(function () {
+    // Vérification d'email
     Route::get('verify-email', EmailVerificationPromptController::class)
                 ->name('verification.notice');
 
@@ -80,6 +91,7 @@ Route::middleware('auth')->group(function () {
                 ->middleware('throttle:6,1')
                 ->name('verification.send');
 
+    // Confirmation du mot de passe
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
                 ->name('password.confirm');
 
@@ -87,11 +99,15 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+    // Déconnexion
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
 });
 
-// Routes protégées par les middlewares de rôle
+// Correction automatique : remplacement de 'rôle' par 'role' dans tous les middlewares de ce fichier
+// (aucune occurrence trouvée dans la recherche, mais correction défensive)
+
+// Routes protégées par les middlewares de role
 Route::middleware(['auth', 'check.admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
@@ -109,9 +125,6 @@ Route::middleware(['auth', 'check.restaurateur'])->group(function () {
 });
 
 Route::middleware(['auth', 'check.client'])->group(function () {
-    Route::get('/client/dashboard', function () {
-        return view('client.dashboard');
-    });
-
+    Route::get('/client/dashboard', [App\Http\Controllers\DashboardController::class, 'index']);
     // Ajoutez ici d'autres routes spécifiques aux clients
 });

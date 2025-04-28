@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+// Modèle représentant une commande passée par un utilisateur
 class Order extends Model
 {
     use HasFactory;
 
+    /**
+     * Les attributs pouvant être assignés en masse.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
         'restaurant_id',
@@ -19,12 +25,17 @@ class Order extends Model
         'status',
     ];
 
+    /**
+     * Les attributs pouvant être castés en types spécifiques.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'reservation_time' => 'datetime',
     ];
 
     /**
-     * Get the user that placed the order.
+     * Relation : une commande appartient à un utilisateur.
      */
     public function user(): BelongsTo
     {
@@ -32,7 +43,7 @@ class Order extends Model
     }
 
     /**
-     * Get the restaurant for the order.
+     * Relation : une commande appartient à un restaurant.
      */
     public function restaurant(): BelongsTo
     {
@@ -40,7 +51,7 @@ class Order extends Model
     }
 
     /**
-     * The items that belong to the order.
+     * Les items qui appartiennent à la commande.
      */
     public function items(): BelongsToMany
     {

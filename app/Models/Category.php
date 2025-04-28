@@ -7,20 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+// Modèle représentant une catégorie de restaurant ou d'item
 class Category extends Model
 {
     use HasFactory;
 
     protected $table = "categories";
-    protected $fillable = ["name", "restaurant_id"];
 
+    /**
+     * Les attributs pouvant être assignés en masse.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'restaurant_id',
+    ];
+
+    /**
+     * Relation : une catégorie appartient à un restaurant.
+     */
     public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
     }
 
     /**
-     * Get all of the items (dishes) for the Category.
+     * Relation : une catégorie possède plusieurs items.
      */
     public function items(): HasMany
     {

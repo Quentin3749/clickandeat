@@ -1,6 +1,10 @@
 @extends('layout.main')
 
 @section('main')
+    {{-- Vue d'index des catégories --}}
+    {{-- - Affiche la liste des catégories disponibles --}}
+    {{-- - Utilise Bootstrap/Tailwind pour la mise en page --}}
+    {{-- - Affiche des boutons pour créer, éditer ou supprimer une catégorie --}}
 
     <h1>Categories</h1>
     <a href="{{ route('restaurants.index') }}"> liste des restaurants</a>

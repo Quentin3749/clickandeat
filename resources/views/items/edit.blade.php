@@ -1,8 +1,14 @@
+{{--
+    Vue d'édition d'un item (plat)
+    - Affiche un formulaire pour modifier un plat existant
+    - Utilise Bootstrap/Tailwind pour la mise en page
+    - Explique chaque champ et bouton du formulaire
+--}}
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Modifier l'item</h1>
+    <div class="container"> {{-- Conteneur principal Bootstrap --}}
+        <h1 class="mb-4">Éditer l'item</h1>
 
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -14,23 +20,23 @@
             </div>
         @endif
 
-        <form action="{{ route('items.update', $item->id) }}" method="POST">
+        <form action="{{ route('items.update', $item->id) }}" method="POST"> {{-- Formulaire d'édition --}}
             @csrf
             @method('PUT')
 
             <div class="mb-3">
                 <label for="name" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $item->name) }}" required>
+                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $item->name) }}" required> {{-- Champ nom --}}
             </div>
 
             <div class="mb-3">
                 <label for="cost" class="form-label">Coût</label>
-                <input type="number" step="0.01" class="form-control" id="cost" name="cost" value="{{ old('cost', $item->cost) }}">
+                <input type="number" step="0.01" class="form-control" id="cost" name="cost" value="{{ old('cost', $item->cost) }}"> {{-- Champ coût --}}
             </div>
 
             <div class="mb-3">
                 <label for="price" class="form-label">Prix</label>
-                <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price', $item->price) }}" required>
+                <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price', $item->price) }}" required> {{-- Champ prix --}}
             </div>
 
             <div class="mb-3">
@@ -40,7 +46,7 @@
                     @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ old('category_id', $item->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                     @endforeach
-                </select>
+                </select> {{-- Champ catégorie --}}
             </div>
 
             <div class="mb-3 form-check">
@@ -48,7 +54,7 @@
                 <label class="form-check-label" for="is_active">Actif</label>
             </div>
 
-            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            <button type="submit" class="btn btn-primary">Mettre à jour</button> {{-- Bouton de soumission --}}
             <a href="{{ route('items.index') }}" class="btn btn-secondary">Annuler</a>
         </form>
     </div>

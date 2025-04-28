@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+// Modèle représentant un item (plat, boisson, etc.)
 class Item extends Model
 {
     use HasFactory;
 
+    /**
+     * Les attributs pouvant être assignés en masse.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'restaurant_id',
         'category_id',
@@ -21,7 +27,7 @@ class Item extends Model
     ];
 
     /**
-     * Get the restaurant that owns the item.
+     * Relation : un item appartient à un restaurant.
      */
     public function restaurant(): BelongsTo
     {
@@ -29,7 +35,7 @@ class Item extends Model
     }
 
     /**
-     * Get the category that the item belongs to.
+     * Relation : un item appartient à une catégorie.
      */
     public function category(): BelongsTo
     {

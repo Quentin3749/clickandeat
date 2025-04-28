@@ -4,19 +4,15 @@ namespace App\Http\Middleware;
 
 use Illuminate\Routing\Middleware\ValidateSignature as Middleware;
 
+// Middleware qui vérifie la validité des signatures d'URL (liens signés)
 class ValidateSignature extends Middleware
 {
     /**
-     * The names of the query string parameters that should be ignored.
+     * Les noms des paramètres ignorés lors de la validation de la signature
      *
      * @var array<int, string>
      */
-    protected $except = [
-        // 'fbclid',
-        // 'utm_campaign',
-        // 'utm_content',
-        // 'utm_medium',
-        // 'utm_source',
-        // 'utm_term',
+    protected $ignore = [
+        // Ajouter ici les paramètres à ignorer
     ];
 }

@@ -1,8 +1,14 @@
+{{--
+    Vue de création d'une commande
+    - Affiche un formulaire pour ajouter une nouvelle commande
+    - Utilise Bootstrap/Tailwind pour la mise en page
+    - Explique chaque champ et bouton du formulaire
+--}}
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Créer une Nouvelle Commande</h1>
+    <div class="container"> {{-- Conteneur principal Bootstrap --}}
+        <h1 class="mb-4">Créer une Nouvelle Commande</h1>
 
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -14,7 +20,7 @@
             </div>
         @endif
 
-        <form action="{{ route('orders.store') }}" method="POST">
+        <form action="{{ route('orders.store') }}" method="POST"> {{-- Formulaire de création --}}
             @csrf
 
             <div class="mb-3">
@@ -24,13 +30,13 @@
                     @foreach($restaurants as $restaurant)
                         <option value="{{ $restaurant->id }}">{{ $restaurant->name }}</option>
                     @endforeach
-                </select>
+                </select> {{-- Champ restaurant --}}
             </div>
 
             <div class="mb-3">
                 <label for="reservation_time" class="form-label">Heure de Réservation (Optionnel)</label>
-                <input type="datetime-local" class="form-control" id="reservation_time" name="reservation_time">
-                <small class="form-text text-muted">Laissez vide si la commande est immédiate.</small>
+                <input type="datetime-local" class="form-control" id="reservation_time" name="reservation_time" min="{{ now()->format('Y-m-d\TH:i') }}">
+                <small class="form-text text-muted">Laissez vide si la commande est immédiate.</small> {{-- Champ date/heure --}}
             </div>
 
             <div class="mb-3">
@@ -41,7 +47,7 @@
             <div id="restaurant-items" class="mt-4">
                 </div>
 
-            <button type="submit" class="btn btn-primary">Créer la Commande</button>
+            <button type="submit" class="btn btn-primary">Créer la Commande</button> {{-- Bouton de soumission --}}
             <a href="{{ route('orders.index') }}" class="btn btn-secondary">Annuler</a>
         </form>
     </div>

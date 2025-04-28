@@ -1,0 +1,3 @@
+Merci d'uploader ici le dossier extrait du template Yummy Red (HTML, CSS, images, etc.) ou de préciser où tu l'as placé. Je vais ensuite intégrer son contenu dans la vue show.blade.php.
+
+Si tu as déjà copié les assets (css, js, images) dans /public, indique-moi le chemin exact pour que je référence correctement les fichiers dans la vue Blade.

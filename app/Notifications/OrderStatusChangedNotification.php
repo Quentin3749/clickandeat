@@ -8,19 +8,28 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+// Notification envoyée lorsqu'un statut de commande change (ex : en préparation, livré, etc.)
 class OrderStatusChangedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    /**
+     * La commande concernée par la notification.
+     * @var Order
+     */
     public $order;
+
+    /**
+     * L'ancien statut de la commande avant le changement.
+     * @var string
+     */
     public $oldStatus;
 
     /**
-     * Create a new notification instance.
+     * Crée une nouvelle instance de notification.
      *
-     * @param  \App\Models\Order  $order
-     * @param  string  $oldStatus
-     * @return void
+     * @param  Order   $order      La commande concernée
+     * @param  string  $oldStatus  L'ancien statut
      */
     public function __construct(Order $order, string $oldStatus)
     {
@@ -29,27 +38,30 @@ class OrderStatusChangedNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the notification's delivery channels.
+     * Détermine les canaux de diffusion de la notification.
+     * Ici : email et base de données.
      *
-     * @param  mixed  $notifiable
+     * @param  mixed $notifiable
      * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
+        // On envoie la notification par email et on l'enregistre en base de données
         return ['mail', 'database']; // Nous allons envoyer un email et enregistrer la notification en base de données
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Génère le contenu de l'email envoyé lors du changement de statut.
      *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @param  mixed $notifiable
+     * @return MailMessage
      */
     public function toMail(object $notifiable): MailMessage
     {
         $newStatus = $this->order->status;
         $restaurantName = $this->order->restaurant->name;
 
+        // Ici tu peux personnaliser le contenu de l'email envoyé à l'utilisateur
         return (new MailMessage)
                     ->subject("Mise à jour du statut de votre commande #{$this->order->id} chez {$restaurantName}")
                     ->line("Bonjour {$notifiable->name},")
@@ -61,9 +73,9 @@ class OrderStatusChangedNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the array representation of the notification.
+     * Représentation de la notification en base de données.
      *
-     * @param  mixed  $notifiable
+     * @param  mixed $notifiable
      * @return array<string, mixed>
      */
     public function toDatabase(object $notifiable): array

@@ -20,12 +20,17 @@ class OrderController extends Controller
         if ($user->hasRole('restaurateur')) {
             // Récupérer les IDs des restaurants gérés par le restaurateur
             $restaurantIds = $user->restaurants()->pluck('id');
-            // Récupérer les commandes pour ces restaurants
+            // Commandes pour ces restaurants
             $orders = Order::whereIn('restaurant_id', $restaurantIds)
                 ->with(['user', 'restaurant'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
-            return view('restaurateur.commandes.index', compact('orders'));
+            // Réservations pour ces restaurants
+            $reservations = \App\Models\Reservation::whereIn('restaurant_id', $restaurantIds)
+                ->with(['user', 'restaurant'])
+                ->orderBy('date', 'desc')
+                ->paginate(10);
+            return view('restaurateur.commandes', compact('orders', 'reservations'));
         } else {
             // Si l'utilisateur n'est pas un restaurateur, afficher ses propres commandes
             $orders = Order::where('user_id', $user->id)
@@ -113,26 +118,71 @@ class OrderController extends Controller
     /**
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Order  $order
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:pending,processing,ready,delivered,cancelled',
-        ]);
+        $order = Order::findOrFail($id);
+        // Autoriser uniquement le restaurateur propriétaire à modifier
+        if (!auth()->user()->isRestaurateur() || !auth()->user()->restaurants->pluck('id')->contains($order->restaurant_id)) {
+            abort(403);
+        }
+        $validStatuses = ['pending', 'preparing', 'completed', 'cancelled'];
+        if (!in_array($request->status, $validStatuses)) {
+            return back()->with('error', 'Statut invalide.');
+        }
+        $order->status = $request->status;
+        $order->save();
+        // (Optionnel) Envoyer une notification au client ici
+        return back()->with('success', 'Statut de la commande mis à jour.');
+    }
 
-      
-        
-        if (!Auth::user()->restaurants->pluck('id')->contains($order->restaurant_id)) {
-            abort(403, 'Vous n\'êtes pas autorisé à modifier cette commande.');
+    /**
+     * Affiche l'historique des commandes de l'utilisateur connecté
+     */
+    public function history()
+    {
+        $orders = Auth::user()
+            ->orders()
+            ->with(['restaurant', 'items'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('orders.history', compact('orders'));
+    }
+
+    /**
+     * Annule une commande
+     */
+    public function cancel(Order $order)
+    {
+        // Vérifier que l'utilisateur est propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Vous n\'êtes pas autorisé à annuler cette commande.');
         }
 
-        $oldStatus = $order->status;
-        $order->update(['status' => $request->status]);
+        // Vérifier que la commande peut être annulée
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Cette commande ne peut plus être annulée.');
+        }
 
-        Event::dispatch(new OrderStatusUpdated($order, $oldStatus));
+        $order->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Statut de la commande mis à jour avec succès.');
+        return redirect()->back()->with('success', 'La commande a été annulée avec succès.');
+    }
+
+    /**
+     * Génère la facture PDF pour une commande.
+     */
+    public function invoice($orderId)
+    {
+        $order = Order::with(['user', 'restaurant', 'items'])->findOrFail($orderId);
+        // Optionnel : vérifier que l'utilisateur peut accéder à la commande
+        if (Auth::id() !== $order->user_id && !Auth::user()->isAdmin()) {
+            abort(403);
+        }
+        $pdf = \PDF::loadView('pdf.invoice', compact('order'));
+        return $pdf->download('facture_commande_'.$order->id.'.pdf');
     }
 }

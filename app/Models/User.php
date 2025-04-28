@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// Modèle représentant un utilisateur de l'application (client, restaurateur, admin)
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Les attributs pouvant être assignés en masse.
      *
      * @var array<int, string>
      */
@@ -19,11 +20,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role'
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Les attributs à cacher lors de la sérialisation.
      *
      * @var array<int, string>
      */
@@ -33,7 +34,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Les attributs à caster automatiquement.
      *
      * @var array<string, string>
      */
@@ -43,7 +44,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Check if the user is a client
+     * Vérifie si l'utilisateur est un client
      */
     public function isClient(): bool
     {
@@ -51,7 +52,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is a restaurateur
+     * Vérifie si l'utilisateur est un restaurateur
      */
     public function isRestaurateur(): bool
     {
@@ -59,15 +60,42 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is an admin
+     * Vérifie si l'utilisateur est un administrateur
      */
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    public function restaurant()
+    /**
+     * Get the user's orders
+     */
+    public function orders()
     {
-        return $this->hasOne(Restaurant::class);
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the restaurants owned by the user
+     */
+    public function restaurants()
+    {
+        return $this->hasMany(Restaurant::class);
+    }
+
+    /**
+     * Get the user's reservations
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole($role)
+    {
+        return $this->role === $role;
     }
 }

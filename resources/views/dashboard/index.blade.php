@@ -1,3 +1,8 @@
+{{-- 
+    Tableau de bord utilisateur (tous rôles)
+    - Affiche les informations personnalisées selon le rôle (admin, restaurateur, client)
+    - Utilise Bootstrap/Tailwind pour la mise en page
+--}}
 @extends('layout.main')
 
 @section('main')
@@ -14,6 +19,18 @@
       </div>
     </div>
     <!--end::Row-->
+    <div class="container"> {{-- Conteneur principal Bootstrap --}}
+        <div class="row"> {{-- Grille principale --}}
+            <div class="col-md-12"> {{-- Colonne pleine largeur --}}
+                <div class="card"> {{-- Carte Bootstrap --}}
+                    <div class="card-body">
+                        <h1 class="card-title">Bienvenue sur votre tableau de bord</h1>
+                        <p class="card-text">Résumé de l'activité et accès rapides.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!--end::Container-->
 @endsection

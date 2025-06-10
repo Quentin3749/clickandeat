@@ -35,6 +35,7 @@
     31 => 'Termwind\\Laravel\\TermwindServiceProvider',
     32 => 'Pest\\Laravel\\PestServiceProvider',
     33 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
+    34 => 'Spatie\\Permission\\PermissionServiceProvider',
   ),
   'eager' => 
   array (
@@ -56,6 +57,7 @@
     15 => 'Termwind\\Laravel\\TermwindServiceProvider',
     16 => 'Pest\\Laravel\\PestServiceProvider',
     17 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
+    18 => 'Spatie\\Permission\\PermissionServiceProvider',
   ),
   'deferred' => 
   array (

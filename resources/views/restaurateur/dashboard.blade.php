@@ -116,10 +116,10 @@
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 quick-link-card h-100">
-                        <div class="quick-link-icon text-success"><i class="fa fa-history"></i></div>
-                        <h5 class="fw-bold">Historique</h5>
-                        <p class="text-muted">Consultez l'historique de vos réservations et commandes.</p>
-                        <a href="{{ route('orders.history') }}" class="btn btn-orange btn-sm px-4">Voir</a>
+                        <div class="quick-link-icon text-success"><i class="fa fa-list"></i></div>
+                        <h5 class="fw-bold">Commandes</h5>
+                        <p class="text-muted">Gérez les commandes en cours et passées de vos restaurants.</p>
+                        <a href="{{ url('/orders') }}" class="btn btn-orange btn-sm px-4">Voir</a>
                     </div>
                 </div>
             </div>

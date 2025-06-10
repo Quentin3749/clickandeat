@@ -145,16 +145,48 @@ Route::middleware(['auth', 'check.client'])->prefix('client')->group(function ()
     Route::get('/paiement/success', [App\Http\Controllers\StripeController::class, 'success'])->name('stripe.success');
 });
 
-// Historique commandes (authentifié)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/commandes/historique', [OrderController::class, 'history'])->name('orders.history');
-    Route::patch('/commandes/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-});
-
+// Routes pour les catégories, restaurants et items
 Route::resource('categories', CategoryController::class);
 Route::resource('restaurants', RestaurantsController::class);
 Route::resource('items', ItemController::class);
-Route::resource('orders', OrderController::class)->middleware('auth'); // Ajout de la route pour les commandes
+
+// Routes pour les commandes (authentifié)
+Route::middleware('auth')->group(function () {
+    // Redirection /orders vers l'historique des commandes
+    Route::get('/orders', function () {
+        return redirect()->route('orders.history');
+    })->name('orders.index');
+    
+    // Historique des commandes
+    Route::get('/commandes/historique', [OrderController::class, 'history'])->name('orders.history');
+    
+    // Mise à jour du statut d'une commande (pour les restaurateurs)
+    Route::patch('/commandes/{order}/update-status', [OrderController::class, 'updateStatus'])
+        ->name('orders.update-status');
+    
+    // Annulation de commande
+    Route::patch('/commandes/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    
+    // Routes pour les commandes
+    Route::prefix('orders')->name('orders.')->group(function () {
+        // Liste des commandes (index)
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        
+        // Création de commande
+        Route::get('/create', [OrderController::class, 'create'])->name('create');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        
+        // Affichage d'une commande spécifique (doit être avant les routes avec paramètres)
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        
+        // Édition de commande
+        Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('edit');
+        Route::put('/{order}', [OrderController::class, 'update'])->name('update');
+        
+        // Suppression de commande
+        Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy');
+    });
+});
 
 // Route publique pour afficher un restaurant avec le template yummy
 Route::get('/restaurant/{id}', [App\Http\Controllers\RestaurantsController::class, 'show']);
